@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Define the single BookRepository bean -->
+    <bean id="bookRepository" class="com.library.repository.BookRepository" />
+
+    <!-- 1. Configure Constructor Injection -->
+    <bean id="bookServiceConstructor" class="com.library.service.BookService">
+        <constructor-arg ref="bookRepository" />
+    </bean>
+
+    <!-- 2. Configure Setter Injection -->
+    <bean id="bookServiceSetter" class="com.library.service.BookService">
+        <!-- Will invoke the default no-arg constructor first, then this property setter -->
+        <property name="bookRepository" ref="bookRepository" />
+        <property name="injectionType" value="Setter Injection" />
+    </bean>
+
+</beans>
