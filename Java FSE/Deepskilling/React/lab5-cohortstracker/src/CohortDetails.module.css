@@ -1,0 +1,16 @@
+.card {
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 15px;
+  width: 280px;
+  display: inline-block;
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+  vertical-align: top;
+}
+.card h3 { margin-top: 0; }
+.ongoing { background-color: #e6ffe6; border-color: green; }
+.completed { background-color: #e6f0ff; border-color: blue; }
+.statusOngoing { color: green; font-weight: bold; }
+.statusCompleted { color: blue; font-weight: bold; }
