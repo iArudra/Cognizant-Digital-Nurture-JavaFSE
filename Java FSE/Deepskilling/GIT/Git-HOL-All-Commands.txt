@@ -1,0 +1,310 @@
+
+
+# 1. Check Git is installed correctly
+git --version
+
+# 2. Set your identity (used in every commit you make)
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+
+# 3. Verify the configuration was saved
+git config --list
+
+# 4. (Optional) Set a default editor for commit messages.
+#    Using nano here since it's built into Git Bash (no extra
+#    install needed, unlike notepad++). Skip this if you're fine
+#    with the default editor.
+git config --global core.editor "nano"
+
+# 5. Verify the editor setting
+git config --get core.editor
+
+# --- Step 3 in the doc: Add a file to the repository ---
+
+# 6. Create a project folder and move into it
+mkdir GitDemo
+cd GitDemo
+
+# 7. Initialize it as a Git repository
+git init
+
+# 8. Verify initialization — this lists the hidden .git folder
+ls -la
+
+# 9. Create a file "welcome.txt" with some content
+echo "Welcome to Git Hands-on Lab" > welcome.txt
+
+# 10. Verify the file was created
+ls -la
+
+# 11. Verify the file's content
+cat welcome.txt
+
+# 12. Check status — file will show as "Untracked"
+git status
+
+# 13. Stage the file so Git starts tracking it
+git add welcome.txt
+
+# 14. Commit with a multi-line message.
+#     Running "git commit" with no -m opens your default editor
+#     (nano, from step 4) so you can type a multi-line message.
+#     Type your message, then save & exit:
+#        nano:  Ctrl+O, Enter, then Ctrl+X
+git commit
+
+# --- OR, for a quick single-line commit instead of the editor ---
+# git commit -m "Add welcome.txt with initial content"
+
+# 15. Confirm the commit was recorded and working directory is clean
+git status
+
+# 16. View the commit history
+git log
+
+# --- Connect to GitHub and push ---
+
+# 17. On GitHub.com: click "+" -> "New repository" -> name it
+#     "GitDemo" -> DO NOT initialize with a README (keep it empty)
+#     -> click "Create repository"
+
+# 18. Link your local repo to the new GitHub repo (copy the URL
+#     GitHub shows you after creating the repo)
+git remote add origin https://github.com/<your-username>/GitDemo.git
+
+# 19. Verify the remote was added
+git remote -v
+
+# 20. Rename branch to "main" if it isn't already (GitHub default)
+git branch -M main
+
+# 21. Push your local commits to GitHub for the first time
+git push -u origin main
+
+# 22. (If a teammate/remote has commits you don't have locally)
+git pull origin main
+
+# You should now see welcome.txt in your GitHub repo online.
+
+
+LAB 2 : .gitignore — Ignoring Unwanted Files and Folders
+
+
+# (Run inside the same GitDemo folder from Lab 1)
+
+cd GitDemo
+
+# 1. Confirm current status is clean before starting
+git status
+
+# 2. Create a sample log file (this is what we want Git to ignore)
+echo "This is a log entry" > app.log
+
+# 3. Create a "log" folder with a file inside it (also to be ignored)
+mkdir log
+echo "another log entry" > log/debug.log
+
+# 4. Check status now — Git will show both as untracked/unwanted
+git status
+
+# 5. Create the .gitignore file and add rules to it
+#    *.log      -> ignores every file ending in .log
+#    log/       -> ignores the entire "log" folder and its contents
+echo "*.log" >> .gitignore
+echo "log/" >> .gitignore
+
+# 6. Verify content of .gitignore
+cat .gitignore
+
+# 7. Check status again — app.log and log/ should NOT appear anymore,
+#    only .gitignore itself shows as untracked
+git status
+
+# 8. Stage and commit the .gitignore file so the rule is saved
+git add .gitignore
+git commit -m "Add .gitignore to ignore .log files and log folder"
+
+# 9. Final check — working directory should be clean,
+#    and app.log / log/ remain untracked forever (ignored)
+git status
+
+# 10. Push the change to GitHub
+git push origin main
+
+
+LAB 3 : Branching and Merging
+
+
+cd GitDemo
+
+
+# 1. Create a new branch called "GitNewBranch"
+git branch GitNewBranch
+
+# 2. List all local branches (the "*" shows which branch you're on)
+git branch
+
+# 2b. List all branches, local AND remote
+git branch -a
+
+# 3. Switch to the newly created branch
+git checkout GitNewBranch
+# (Modern alternative, does the same thing:)
+# git switch GitNewBranch
+
+# 3b. Add a new file with some content while on this branch
+echo "This content belongs to GitNewBranch" > branchfile.txt
+
+# 4. Stage and commit the change on the branch
+git add branchfile.txt
+git commit -m "Add branchfile.txt on GitNewBranch"
+
+# 5. Check status — should be clean after commit
+git status
+
+# --- MERGING ---
+
+# 1. Switch back to master/main
+git checkout main
+
+# 2. See the differences between main and GitNewBranch (CLI diff)
+git diff main GitNewBranch
+
+# 3. (Optional, if you installed P4Merge) open a visual diff tool
+#    First configure it once:
+#    git config --global diff.tool p4merge
+#    git config --global difftool.p4merge.cmd "p4merge \$LOCAL \$REMOTE"
+#    Then run:
+git difftool main GitNewBranch
+
+# 4. Merge GitNewBranch into main
+git merge GitNewBranch
+
+# 5. View the commit history as a graph after merging
+git log --oneline --graph --decorate
+
+# 6. Delete the branch now that it's merged, then confirm it's gone
+git branch -d GitNewBranch
+git status
+git branch -a
+
+# 7. Push the merged main branch to GitHub
+git push origin main
+
+
+LAB 4 : Resolving Merge Conflicts
+
+
+cd GitDemo
+
+# 1. Verify master/main is in a clean state before starting
+git status
+
+# 2. Create a new branch "GitWork" and switch to it, then add hello.xml
+git checkout -b GitWork
+echo "<message>Hello from GitWork branch - version A</message>" > hello.xml
+
+# 3. Update the file again and check status
+echo "<note>Updated content on GitWork</note>" >> hello.xml
+git status
+
+# 4. Commit the changes on the branch
+git add hello.xml
+git commit -m "Add and update hello.xml on GitWork branch"
+
+# 5. Switch to master/main
+git checkout main
+
+# 6. Create hello.xml on main too, with DIFFERENT content
+#    (this is what will cause the conflict)
+echo "<message>Hello from main branch - version B</message>" > hello.xml
+
+# 7. Commit this version on main
+git add hello.xml
+git commit -m "Add different hello.xml content on main"
+
+# 8. Observe the diverging history
+git log --oneline --graph --decorate --all
+
+# 9. Compare the two versions before merging
+git diff main GitWork -- hello.xml
+
+# 10. (Optional) visual diff with P4Merge
+git difftool main GitWork -- hello.xml
+
+# 11. Attempt to merge GitWork into main — this WILL conflict
+#     because both branches changed hello.xml differently
+git merge GitWork
+
+# 12. Observe the conflict markers Git inserts into hello.xml:
+#     <<<<<<< HEAD            (your current branch's version)
+#     <message>Hello from main branch - version B</message>
+#     =======
+#     <message>Hello from GitWork branch - version A</message>
+#     <note>Updated content on GitWork</note>
+#     >>>>>>> GitWork          (the incoming branch's version)
+git status
+
+# 13. Resolve the conflict:
+#     Option A - manually edit hello.xml in your editor, remove the
+#     <<<<<<<, =======, >>>>>>> markers and keep the content you want.
+#
+#     Option B - use a 3-way merge tool (if configured):
+git mergetool
+
+#     NOTE: mergetool creates a backup file like hello.xml.orig —
+#     that's the backup file referred to in step 15 below.
+
+# 14. After resolving, stage the fixed file and commit to complete the merge
+git add hello.xml
+git commit -m "Resolve merge conflict between main and GitWork in hello.xml"
+
+# 15. Check status — you'll likely see a leftover backup file
+#     (e.g. hello.xml.orig) from the merge tool. Add it to .gitignore
+git status
+echo "*.orig" >> .gitignore
+
+# 16. Commit the .gitignore update
+git add .gitignore
+git commit -m "Ignore .orig backup files created by merge tool"
+
+# 17. List all available branches
+git branch -a
+
+# 18. Delete the GitWork branch now that it's merged into main
+git branch -d GitWork
+
+# 19. Observe the final log
+git log --oneline --graph --decorate
+
+# Push everything to GitHub
+git push origin main
+
+
+LAB 5 : Clean Up and Push Back to Remote
+
+
+cd GitDemo
+
+# 1. Verify master/main is in a clean state
+git status
+
+# 2. List out all available branches (confirm GitWork/GitNewBranch
+#    are gone, only main remains)
+git branch -a
+
+# 3. Pull the latest changes from the remote GitHub repo into main
+#    (in case anything changed on GitHub since your last push)
+git pull origin main
+
+# 4. Push any pending local commits from the earlier labs up to GitHub
+git push origin main
+
+# 5. Verify the changes are reflected on the remote:
+#    - Open your repository on https://github.com/<your-username>/GitDemo
+#    - Confirm welcome.txt, .gitignore, hello.xml and the merge
+#      commits are all visible there
+#    - Optionally re-run:
+git log --oneline --graph --decorate --all
+git status
+
